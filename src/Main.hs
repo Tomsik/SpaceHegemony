@@ -7,6 +7,7 @@ import Foreign.Storable
 import Foreign.C.String
 import Foreign.Marshal.Alloc
 import Data.IxSet
+import Debug.Trace
 
 import Game
 
@@ -30,8 +31,8 @@ loopStep maybeEvent = do
             return True
         Just event -> do
             case event of
-                (KeyboardEvent _ _ _ _ _ (Keysym scancodeQ _ _)) ->
-                    return False
+                (KeyboardEvent _ _ _ _ _ (Keysym scancode _ _)) ->
+                    return $ scancode /= scancodeQ
                 _ ->
                     return True
 
