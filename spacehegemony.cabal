@@ -53,10 +53,10 @@ executable spacehegemony
   -- other-modules:       
   
   -- LANGUAGE extensions used by modules in this package.
-  -- other-extensions:    
+  extensions: DeriveDataTypeable
   
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.7 && <4.8, sdl2 == 1.0.2
+  build-depends:       base >=4.7 && <4.8, sdl2 == 1.0.2, ixset
  
   -- Directories containing source files.
   hs-source-dirs:      src

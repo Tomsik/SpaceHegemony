@@ -6,6 +6,9 @@ import Foreign.Ptr
 import Foreign.Storable
 import Foreign.C.String
 import Foreign.Marshal.Alloc
+import Data.IxSet
+
+import Game
 
 eventLoop :: (Maybe Event -> IO Bool) -> IO ()
 eventLoop f =
@@ -34,6 +37,12 @@ loopStep maybeEvent = do
 
 main :: IO ()
 main = do
+    starmap <- makeStarmap
+
+    putStrLn . show . size $ starmap @= (StarPosition 0 1) -- find systems with position = (0, 1)
+    putStrLn . show . size $ starmap @< (StarPositionY 2) -- find systems with y < 2
+    putStrLn . show . size $ starmap @< (StarPositionY 2) @= (StarPositionX 0) -- find systems with y < 2 and x = 0
+
     i <- SDL.init initFlagEverything
     windowTitle <- newCAString "Space Hegemony"
     window <- createWindow windowTitle 0 0 800 600 0
