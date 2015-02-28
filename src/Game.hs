@@ -5,10 +5,8 @@ import Data.IxSet
 import Data.Typeable
 
 import Foreign.Ptr
-import Foreign.Storable
-import Foreign.Marshal.Alloc
-import Foreign.C.String
-import Graphics.UI.SDL as SDL
+
+import Graphics.UI.SDL(Surface, Rect(..))
 
 import EasierSdl
 
@@ -39,10 +37,4 @@ makeStarmap = do
     return $ fromList systems
 
 display :: Ptr Surface -> Starmap -> IO ()
-display screen starmap = do
-    surface <- peek screen
-    color <- mapRGB (surfaceFormat surface) 255 0 0
-    alloca (\rect -> do
-        poke rect (Rect 10 10 50 50)
-        errorCode <- fillRect screen rect color
-        sdlError errorCode $ return () )
+display screen starmap = fillRect screen (Rect 10 10 50 50) (RGB 255 0 0)
