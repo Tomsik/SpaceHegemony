@@ -11,20 +11,22 @@ import Debug.Trace
 
 import Game
 
-eventLoop :: (Maybe Event -> IO Bool) -> IO ()
-eventLoop f =
+eventLoop :: Window -> Ptr Surface -> Starmap -> (Ptr Surface -> Starmap -> Maybe Event -> IO Bool) -> IO ()
+eventLoop window screen starmap f =
     let actualLoop eventPtr = do
             pollResult <- pollEvent eventPtr
             continue <- case pollResult of
-                0 -> f Nothing
+                0 -> f screen starmap Nothing
                 _ -> do
                     event <- peek eventPtr -- get event from pointer
-                    f (Just event)
+                    f screen starmap (Just event)
+            updateWindowSurface window
             if continue then actualLoop eventPtr else return ()
     in alloca (\eventPtr -> actualLoop eventPtr)
 
-loopStep :: Maybe Event -> IO Bool
-loopStep maybeEvent = do
+loopStep :: Ptr Surface -> Starmap -> Maybe Event -> IO Bool
+loopStep screen starmap maybeEvent = do
+    display screen starmap
     case maybeEvent of
         Nothing -> do
             SDL.delay 10
@@ -47,9 +49,10 @@ main = do
     i <- SDL.init initFlagEverything
     windowTitle <- newCAString "Space Hegemony"
     window <- createWindow windowTitle 0 0 800 600 0
+    screen <- getWindowSurface window
     case i of
         0 -> -- eveything's fine
-            eventLoop loopStep
+            eventLoop window screen starmap loopStep
         _ -> do
             err <- getError
             errString <- peekCString err
