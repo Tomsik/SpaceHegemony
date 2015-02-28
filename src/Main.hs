@@ -10,7 +10,7 @@ import Data.IxSet
 import Debug.Trace
 
 import Game
-import SdlError
+import EasierSdl
 
 eventLoop :: Window -> Ptr Surface -> Starmap -> (Ptr Surface -> Starmap -> Maybe Event -> IO Bool) -> IO ()
 eventLoop window screen starmap f =

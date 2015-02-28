@@ -1,4 +1,4 @@
-module SdlError where
+module EasierSdl where
 
 import Foreign.C.String
 import Graphics.UI.SDL as SDL

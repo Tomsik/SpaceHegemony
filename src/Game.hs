@@ -10,7 +10,7 @@ import Foreign.Marshal.Alloc
 import Foreign.C.String
 import Graphics.UI.SDL as SDL
 
-import SdlError
+import EasierSdl
 
 newtype StarSystemId = StarSystemId Unique deriving (Typeable, Eq, Ord) -- all these typeable, eq and ord instances are required for ixSet
 data StarPosition = StarPosition { posx :: Integer, posy :: Integer } deriving (Typeable, Eq, Ord)
