@@ -7,7 +7,6 @@ import Foreign.Storable
 import Foreign.C.String
 import Foreign.Marshal.Alloc
 import Data.IxSet
-import Debug.Trace
 
 import Game
 import EasierSdl

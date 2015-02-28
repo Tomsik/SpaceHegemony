@@ -5,6 +5,7 @@ import Data.IxSet
 import Data.Typeable
 
 import Foreign.Ptr
+import Foreign.C.Types
 
 import Graphics.UI.SDL(Surface, Rect(..))
 
@@ -37,4 +38,10 @@ makeStarmap = do
     return $ fromList systems
 
 display :: Ptr Surface -> Starmap -> IO ()
-display screen starmap = fillRect screen (Rect 10 10 50 50) (RGB 255 0 0)
+display screen starmap = mapM_ displaySystem systemRects
+    where
+        displaySystem = fillRect screen (RGB 255 0 0)
+        systemRects = map (displayRect . position) . toList $ starmap
+        displayRect (StarPosition x y) = Rect (pos x) (pos y) 50 50
+        pos a = CInt . fromIntegral $ 10 + a * 60
+
