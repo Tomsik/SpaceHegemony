@@ -10,6 +10,7 @@ import Data.IxSet
 import Debug.Trace
 
 import Game
+import SdlError
 
 eventLoop :: Window -> Ptr Surface -> Starmap -> (Ptr Surface -> Starmap -> Maybe Event -> IO Bool) -> IO ()
 eventLoop window screen starmap f =
@@ -50,11 +51,5 @@ main = do
     windowTitle <- newCAString "Space Hegemony"
     window <- createWindow windowTitle 0 0 800 600 0
     screen <- getWindowSurface window
-    case i of
-        0 -> -- eveything's fine
-            eventLoop window screen starmap loopStep
-        _ -> do
-            err <- getError
-            errString <- peekCString err
-            putStrLn ("Unable to initialize SDL: " ++ errString ++ "\n")
+    sdlError i $ eventLoop window screen starmap loopStep
     quit

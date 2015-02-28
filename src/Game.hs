@@ -10,6 +10,8 @@ import Foreign.Marshal.Alloc
 import Foreign.C.String
 import Graphics.UI.SDL as SDL
 
+import SdlError
+
 newtype StarSystemId = StarSystemId Unique deriving (Typeable, Eq, Ord) -- all these typeable, eq and ord instances are required for ixSet
 data StarPosition = StarPosition { posx :: Integer, posy :: Integer } deriving (Typeable, Eq, Ord)
 data StarSystem = StarSystem { systemId :: StarSystemId, position :: StarPosition } deriving (Typeable, Eq, Ord)
@@ -43,9 +45,4 @@ display screen starmap = do
     alloca (\rect -> do
         poke rect (Rect 10 10 50 50)
         errorCode <- fillRect screen rect color
-        case errorCode of
-            0 -> return ()
-            _ -> do
-                err <- getError
-                errString <- peekCString err
-                putStrLn ("Unable draw on screen: " ++ errString ++ "\n"))
+        sdlError errorCode $ return () )
