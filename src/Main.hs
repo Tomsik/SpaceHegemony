@@ -12,32 +12,36 @@ import Game
 import Player
 import EasierSdl
 
-eventLoop :: Window -> Ptr Surface -> GameState -> (Ptr Surface -> GameState -> Maybe Event -> IO Bool) -> IO ()
-eventLoop window screen starmap f =
-    let actualLoop eventPtr = do
-            pollResult <- pollEvent eventPtr
-            continue <- case pollResult of
-                0 -> f screen starmap Nothing
-                _ -> do
-                    event <- peek eventPtr -- get event from pointer
-                    f screen starmap (Just event)
-            updateWindowSurface window
-            if continue then actualLoop eventPtr else return ()
-    in alloca (\eventPtr -> actualLoop eventPtr)
+eventLoop :: Window -> Ptr Surface -> GameState -> (GameState -> Maybe Event -> IO Bool) -> IO ()
+eventLoop window screen starmap f = do
+    maybeEvent <- getEvent
+    display screen starmap
+    continue <- f starmap maybeEvent
+    updateWindowSurface window
+    if continue then eventLoop window screen starmap f else return ()
 
-loopStep :: Ptr Surface -> GameState -> Maybe Event -> IO Bool
-loopStep screen state maybeEvent = do
-    display screen state
-    case maybeEvent of
-        Nothing -> do
-            SDL.delay 10
+getEvent :: IO (Maybe Event)
+getEvent =
+    alloca $ \eventPtr -> do
+        pollResult <- pollEvent eventPtr
+        if pollResult == 0 then
+            return Nothing
+        else do
+            event <- peek eventPtr
+            return $ Just event
+
+loopStep :: GameState -> Maybe Event -> IO Bool
+loopStep state Nothing =
+    do
+        SDL.delay 10
+        return True
+
+loopStep state (Just event) =
+    case event of
+        (KeyboardEvent _ _ _ _ _ (Keysym scancode _ _)) | scancode == scancodeQ ->
+            return False
+        _ ->
             return True
-        Just event -> do
-            case event of
-                (KeyboardEvent _ _ _ _ _ (Keysym scancode _ _)) ->
-                    return $ scancode /= scancodeQ
-                _ ->
-                    return True
 
 main :: IO ()
 main = do

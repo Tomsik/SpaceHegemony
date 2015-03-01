@@ -4,6 +4,7 @@ import Data.IxSet
 import Data.Unique
 import Data.Typeable
 import Data.Maybe
+import Data.Function
 
 import EasierSdl
 
@@ -18,7 +19,7 @@ data Player = Player {
 } deriving (Typeable, Eq)
 
 instance Ord Player where
-    (<=) p1 p2 = number p1 <= number p2
+    (<=) = (<=) `on` number
 
 instance Indexable Player where
     empty = ixSet [ ixFun (\player -> [ playerId player ]) ]
