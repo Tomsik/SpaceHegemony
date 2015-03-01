@@ -12,7 +12,7 @@ import Control.Exception
 
 import Graphics.UI.SDL as SDL
 
-data RGB = RGB Word8 Word8 Word8
+data RGB = RGB Word8 Word8 Word8 deriving Eq
 
 data SDLException = SDLException String
     deriving (Typeable, Show)

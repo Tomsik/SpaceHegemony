@@ -11,7 +11,7 @@ import Data.IxSet
 import Game
 import EasierSdl
 
-eventLoop :: Window -> Ptr Surface -> Starmap -> (Ptr Surface -> Starmap -> Maybe Event -> IO Bool) -> IO ()
+eventLoop :: Window -> Ptr Surface -> GameState -> (Ptr Surface -> GameState -> Maybe Event -> IO Bool) -> IO ()
 eventLoop window screen starmap f =
     let actualLoop eventPtr = do
             pollResult <- pollEvent eventPtr
@@ -24,9 +24,9 @@ eventLoop window screen starmap f =
             if continue then actualLoop eventPtr else return ()
     in alloca (\eventPtr -> actualLoop eventPtr)
 
-loopStep :: Ptr Surface -> Starmap -> Maybe Event -> IO Bool
-loopStep screen starmap maybeEvent = do
-    display screen starmap
+loopStep :: Ptr Surface -> GameState -> Maybe Event -> IO Bool
+loopStep screen state maybeEvent = do
+    display screen state
     case maybeEvent of
         Nothing -> do
             SDL.delay 10
@@ -40,7 +40,8 @@ loopStep screen starmap maybeEvent = do
 
 main :: IO ()
 main = do
-    starmap <- makeStarmap
+    players <- makePlayers
+    starmap <- makeStarmap players
 
     putStrLn . show . size $ starmap @= (StarPosition 0 1) -- find systems with position = (0, 1)
     putStrLn . show . size $ starmap @< (StarPositionY 2) -- find systems with y < 2
@@ -50,5 +51,5 @@ main = do
     windowTitle <- newCAString "Space Hegemony"
     window <- createWindow windowTitle 0 0 800 600 0
     screen <- getWindowSurface window
-    sdlError i $ eventLoop window screen starmap loopStep
+    sdlError i $ eventLoop window screen (players, starmap) loopStep
     quit
