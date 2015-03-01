@@ -9,6 +9,7 @@ import Foreign.Marshal.Alloc
 import Data.IxSet
 
 import Game
+import Player
 import EasierSdl
 
 eventLoop :: Window -> Ptr Surface -> GameState -> (Ptr Surface -> GameState -> Maybe Event -> IO Bool) -> IO ()
