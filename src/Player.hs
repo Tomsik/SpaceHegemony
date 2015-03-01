@@ -13,33 +13,30 @@ newtype PlayerId = PlayerId Unique deriving (Typeable, Eq, Ord)
 
 data Player = Player {
     playerId :: PlayerId,
-    number :: Integer
+    number :: Integer,
+    color :: RGB
 } deriving (Typeable, Eq)
 
 instance Ord Player where
-    (<=) (Player _ number1) (Player _ number2) = number1 <= number2
+    (<=) p1 p2 = number p1 <= number p2
 
 instance Indexable Player where
     empty = ixSet [ ixFun (\player -> [ playerId player ]) ]
 
-playerColor :: Player -> RGB
-playerColor (Player _ 1) = RGB 0 255 0
-playerColor (Player _ 2) = RGB 255 0 0
-
 playerColor' :: Maybe Player -> RGB
-playerColor' (Just p) = playerColor p
+playerColor' (Just p) = color p
 playerColor' Nothing = RGB 128 128 128
 
 playerById :: Players -> PlayerId -> Player
 playerById players = fromJust . getOne . (players @=)
 
-makePlayer :: Integer -> IO Player
-makePlayer number = do
+makePlayer :: Integer -> RGB -> IO Player
+makePlayer number color = do
     id <- newUnique
-    return $ Player (PlayerId id) number
+    return $ Player (PlayerId id) number color
 
 makePlayers :: IO Players
 makePlayers = do
-    p1 <- makePlayer 1
-    p2 <- makePlayer 2
+    p1 <- makePlayer 1 (RGB 0 255 0)
+    p2 <- makePlayer 2 (RGB 255 0 0)
     return $ fromList [p1, p2]
