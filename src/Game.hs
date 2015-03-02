@@ -53,12 +53,15 @@ own :: Player -> StarSystem -> StarSystem
 own player system = system { owner = Just . playerId $ player }
 
 type StarConnections = IxSet StarConnection
-data StarConnection = StarConnection StarSystemId StarSystemId deriving (Typeable, Eq, Ord)
+data StarConnection = StarConnection {
+    systemId1 :: StarSystemId,
+    systemId2 :: StarSystemId
+} deriving (Typeable, Eq, Ord)
 
 instance Indexable StarConnection where
     empty = ixSet [
-        ixFun (\(StarConnection sid1 _) -> [ sid1 ]),
-        ixFun (\(StarConnection _ sid2) -> [ sid2 ]) ]
+        ixFun (\conn -> [ systemId1 conn ]),
+        ixFun (\conn -> [ systemId2 conn ]) ]
 
 makeConnection :: StarSystem -> StarSystem -> StarConnection
 makeConnection s1 s2 = StarConnection (systemId s1) (systemId s2)
