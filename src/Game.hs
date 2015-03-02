@@ -14,7 +14,9 @@ import EasierSdl
 
 type GameState = (Players, Starmap)
 
-type Starmap = IxSet StarSystem
+type Starmap = (StarSystems, StarConnections)
+
+type StarSystems = IxSet StarSystem
 
 data StarPosition = StarPosition { posx :: Integer, posy :: Integer } deriving (Typeable, Eq, Ord)
 newtype StarPositionX = StarPositionX Integer deriving (Typeable, Eq, Ord) -- these two are for indexing operations only
@@ -34,19 +36,10 @@ instance Indexable StarSystem where
         ixFun (\starsystem -> [ StarPositionX . posx . position $ starsystem ]),
         ixFun (\starsystem -> [ StarPositionY . posy . position $ starsystem ]) ]
 
-own :: Player -> StarSystem -> StarSystem
-own player system = system { owner = Just . playerId $ player }
-
 makeSystem :: (Integer, Integer) -> IO StarSystem -- makeUnique returns IO Unique, hence IO
 makeSystem (x, y) = do
     id <- newUnique
     return $ StarSystem (StarSystemId id) (StarPosition x y) Nothing
-
-makeStarmap :: Players -> IO Starmap
-makeStarmap players = do
-    let [p1, p2] = toList players
-    [s1, s2, s3] <- mapM makeSystem [ (0, 1), (1, 2), (1, 0) ]
-    return $ fromList [own p1 s1, own p2 s2, s3]
 
 displaySystem :: Ptr Surface -> Players -> StarSystem -> IO ()
 displaySystem screen players system = fillRect screen (playerColor' player) systemRect
@@ -56,5 +49,27 @@ displaySystem screen players system = fillRect screen (playerColor' player) syst
         displayRect (StarPosition x y) = Rect (pos x) (pos y) 50 50
         pos a = CInt . fromIntegral $ 10 + a * 60
 
+own :: Player -> StarSystem -> StarSystem
+own player system = system { owner = Just . playerId $ player }
+
+type StarConnections = IxSet StarConnection
+data StarConnection = StarConnection StarSystemId StarSystemId deriving (Typeable, Eq, Ord)
+
+instance Indexable StarConnection where
+    empty = ixSet [
+        ixFun (\(StarConnection sid1 _) -> [ sid1 ]),
+        ixFun (\(StarConnection _ sid2) -> [ sid2 ]) ]
+
+makeConnection :: StarSystem -> StarSystem -> StarConnection
+makeConnection s1 s2 = StarConnection (systemId s1) (systemId s2)
+
+makeStarmap :: Players -> IO Starmap
+makeStarmap players = do
+    let [p1, p2] = toList players
+    [s1, s2, s3] <- mapM makeSystem [ (0, 1), (1, 2), (1, 0) ]
+    let systems = [own p1 s1, own p2 s2, s3]
+    let connections = [makeConnection s1 s2 | s1 <- systems, s2<-systems, s1 /= s2]
+    return (fromList systems, fromList connections)
+
 display :: Ptr Surface -> GameState -> IO ()
-display screen (players, starmap) = mapM_ (displaySystem screen players) . toList $ starmap
+display screen (players, starmap) = mapM_ (displaySystem screen players) . toList . fst $ starmap

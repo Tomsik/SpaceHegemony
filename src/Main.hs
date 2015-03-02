@@ -48,9 +48,9 @@ main = do
     players <- makePlayers
     starmap <- makeStarmap players
 
-    putStrLn . show . size $ starmap @= (StarPosition 0 1) -- find systems with position = (0, 1)
-    putStrLn . show . size $ starmap @< (StarPositionY 2) -- find systems with y < 2
-    putStrLn . show . size $ starmap @< (StarPositionY 2) @= (StarPositionX 0) -- find systems with y < 2 and x = 0
+    putStrLn . show . size $ fst starmap @= (StarPosition 0 1) -- find systems with position = (0, 1)
+    putStrLn . show . size $ fst starmap @< (StarPositionY 2) -- find systems with y < 2
+    putStrLn . show . size $ fst starmap @< (StarPositionY 2) @= (StarPositionX 0) -- find systems with y < 2 and x = 0
 
     i <- SDL.init initFlagEverything
     windowTitle <- newCAString "Space Hegemony"
