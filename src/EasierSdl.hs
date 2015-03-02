@@ -1,6 +1,5 @@
 module EasierSdl where
 
-import Foreign.Ptr
 import Foreign.Storable
 import Foreign.Marshal.Alloc
 import Foreign.C.String
@@ -19,18 +18,17 @@ data SDLException = SDLException String
 
 instance Exception SDLException
 
-fillRect :: Ptr Surface -> RGB -> Rect -> IO()
-fillRect surfacePtr color rect = do
+fillRect :: Renderer -> RGB -> Rect -> IO()
+fillRect renderer color rect = do
     let RGB r g b = color
-    surface <- peek surfacePtr
-    sdlColor <- mapRGB (surfaceFormat surface) r g b
+    setRenderDrawColor renderer r g b 255
     alloca (\rectPtr -> do
         poke rectPtr rect
-        errorCode <- SDL.fillRect surfacePtr rectPtr sdlColor
+        errorCode <- renderFillRect renderer rectPtr
         sdlError errorCode $ return () )
 
 sdlError :: CInt -> IO a -> IO a
-sdlError errorCode success = 
+sdlError errorCode success =
     case errorCode of
         0 -> -- everything's fine
             success

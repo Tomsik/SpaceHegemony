@@ -12,13 +12,14 @@ import Game
 import Player
 import EasierSdl
 
-eventLoop :: Window -> Ptr Surface -> GameState -> (GameState -> Maybe Event -> IO Bool) -> IO ()
-eventLoop window screen starmap f = do
+eventLoop :: Window -> Renderer -> GameState -> (GameState -> Maybe Event -> IO Bool) -> IO ()
+eventLoop window renderer starmap f = do
     maybeEvent <- getEvent
-    display screen starmap
+    clearScreen renderer
+    display renderer starmap
     continue <- f starmap maybeEvent
-    updateWindowSurface window
-    if continue then eventLoop window screen starmap f else return ()
+    renderPresent renderer
+    if continue then eventLoop window renderer starmap f else return ()
 
 getEvent :: IO (Maybe Event)
 getEvent =
@@ -43,6 +44,12 @@ loopStep state (Just event) =
         _ ->
             return True
 
+clearScreen :: Renderer -> IO ()
+clearScreen renderer = do
+    setRenderDrawColor renderer 0 0 0 255
+    errorCode <- renderClear renderer
+    sdlError errorCode $ return ()
+
 main :: IO ()
 main = do
     players <- makePlayers
@@ -55,6 +62,6 @@ main = do
     i <- SDL.init initFlagEverything
     windowTitle <- newCAString "Space Hegemony"
     window <- createWindow windowTitle 0 0 800 600 0
-    screen <- getWindowSurface window
-    sdlError i $ eventLoop window screen (players, starmap) loopStep
+    renderer <- createRenderer window (-1) 0
+    sdlError i $ eventLoop window renderer (players, starmap) loopStep
     quit

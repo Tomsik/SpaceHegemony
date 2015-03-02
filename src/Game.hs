@@ -4,10 +4,9 @@ import Data.Unique
 import Data.IxSet
 import Data.Typeable
 
-import Foreign.Ptr
 import Foreign.C.Types
 
-import Graphics.UI.SDL(Surface, Rect(..))
+import Graphics.UI.SDL(Renderer, Rect(..))
 
 import Player
 import EasierSdl
@@ -41,8 +40,8 @@ makeSystem (x, y) = do
     id <- newUnique
     return $ StarSystem (StarSystemId id) (StarPosition x y) Nothing
 
-displaySystem :: Ptr Surface -> Players -> StarSystem -> IO ()
-displaySystem screen players system = fillRect screen (playerColor' player) systemRect
+displaySystem :: Renderer -> Players -> StarSystem -> IO ()
+displaySystem renderer players system = fillRect renderer (playerColor' player) systemRect
     where
         player = fmap (playerById players) (owner system)
         systemRect = displayRect . position $ system
@@ -74,5 +73,5 @@ makeStarmap players = do
     let connections = [makeConnection s1 s2 | s1 <- systems, s2<-systems, s1 /= s2]
     return (fromList systems, fromList connections)
 
-display :: Ptr Surface -> GameState -> IO ()
+display :: Renderer -> GameState -> IO ()
 display screen (players, starmap) = mapM_ (displaySystem screen players) . toList . fst $ starmap
