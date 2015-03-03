@@ -22,7 +22,7 @@ makeStarmap :: Players -> IO Starmap
 makeStarmap players = do
     let [p1, p2] = toList players
     [s1, s2, s3] <- mapM makeSystem [ (0, 1), (1, 2), (1, 0) ]
-    let systems = [own p1 s1, own p2 s2, s3]
+    let systems = [homeworld p1 s1, homeworld p2 s2, s3]
     let connections = [makeConnection s1 s2 | s1 <- systems, s2<-systems, s1 /= s2]
     return (fromList systems, fromList connections)
 
