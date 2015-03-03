@@ -11,6 +11,7 @@ import Data.IxSet
 import Game
 import Player
 import EasierSdl
+import StarSystem
 
 eventLoop :: Window -> Renderer -> GameState -> (GameState -> Maybe Event -> IO Bool) -> IO ()
 eventLoop window renderer starmap f = do
