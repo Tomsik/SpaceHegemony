@@ -46,7 +46,7 @@ displaySystem renderer players system = fillRect renderer (playerColor' player) 
         player = fmap (playerById players) (owner system)
         systemRect = displayRect . position $ system
         displayRect (StarPosition x y) = Rect (pos x) (pos y) 50 50
-        pos a = CInt . fromIntegral $ 10 + a * 60
+        pos a = fromIntegral $ 10 + a * 60
 
 own :: Player -> StarSystem -> StarSystem
 own player system = system { owner = Just . playerId $ player }
