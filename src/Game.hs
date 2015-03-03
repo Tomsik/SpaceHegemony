@@ -63,7 +63,7 @@ instance Indexable StarConnection where
         ixFun (\conn -> [ to conn ]) ]
 
 makeConnection :: StarSystem -> StarSystem -> StarConnection
-makeConnection s1 s2 = StarConnection (systemId s1) (systemId s2)
+makeConnection s s' = StarConnection (systemId s) (systemId s')
 
 makeStarmap :: Players -> IO Starmap
 makeStarmap players = do
