@@ -8,6 +8,8 @@ import Foreign.C.Types
 import Data.Word
 import Data.Typeable
 import Control.Exception
+import Control.Monad
+import Control.Applicative
 
 import Graphics.UI.SDL as SDL
 
@@ -38,11 +40,5 @@ drawLine renderer color x1 y1 x2 y2 = do
     sdlError errorCode $ return ()
 
 sdlError :: CInt -> IO a -> IO a
-sdlError errorCode success =
-    case errorCode of
-        0 -> -- everything's fine
-            success
-        _ -> do
-            err <- getError
-            errString <- peekCString err
-            throw . SDLException $ "Error in SDL call: " ++ errString ++ "\n"
+sdlError 0 success = success
+sdlError 0 success = throw . SDLException <$> concat <$> sequence [pure "Error in SDL call: ", peekCString =<< getError, pure "\n"]
