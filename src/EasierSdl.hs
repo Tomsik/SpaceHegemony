@@ -41,4 +41,4 @@ drawLine renderer color x1 y1 x2 y2 = do
 
 sdlError :: CInt -> IO a -> IO a
 sdlError 0 success = success
-sdlError 0 success = throw . SDLException <$> concat <$> sequence [pure "Error in SDL call: ", peekCString =<< getError, pure "\n"]
+sdlError _ success = throw . SDLException <$> concat <$> sequence [pure "Error in SDL call: ", peekCString =<< getError, pure "\n"]
