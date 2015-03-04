@@ -1,5 +1,7 @@
 module Player where
 
+import Control.Applicative
+
 import Data.IxSet
 import Data.Unique
 import Data.Typeable
@@ -22,22 +24,16 @@ instance Ord Player where
     (<=) = (<=) `on` number
 
 instance Indexable Player where
-    empty = ixSet [ ixFun (\player -> [ playerId player ]) ]
+    empty = ixSet [ ixFun $ return . playerId ]
 
 playerColor' :: Maybe Player -> RGB
-playerColor' (Just p) = color p
-playerColor' Nothing = RGB 128 128 128
+playerColor' = maybe (RGB 128 128 128) color
 
 playerById :: Players -> PlayerId -> Player
 playerById players = fromJust . getOne . (players @=)
 
 makePlayer :: Integer -> RGB -> IO Player
-makePlayer number color = do
-    id <- newUnique
-    return $ Player (PlayerId id) number color
+makePlayer n c = Player <$> (PlayerId <$> newUnique) <*> pure n <*> pure c
 
 makePlayers :: IO Players
-makePlayers = do
-    p1 <- makePlayer 1 (RGB 0 255 0)
-    p2 <- makePlayer 2 (RGB 255 0 0)
-    return $ fromList [p1, p2]
+makePlayers = fromList <$> sequence [makePlayer 1 (RGB 0 255 0), makePlayer 2 (RGB 255 0 0)]
