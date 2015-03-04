@@ -8,7 +8,6 @@ import Foreign.C.Types
 import Data.Word
 import Data.Typeable
 import Control.Exception
-import Control.Monad
 import Control.Applicative
 
 import Graphics.UI.SDL as SDL
@@ -26,19 +25,17 @@ makeRect x y w h = Rect (fromIntegral x) (fromIntegral y) (fromIntegral w) (from
 fillRect :: Renderer -> RGB -> Rect -> IO()
 fillRect renderer color rect = do
     let RGB r g b = color
-    setRenderDrawColor renderer r g b 255
+    setRenderDrawColor renderer r g b 255 >>= sdlError
     alloca (\rectPtr -> do
         poke rectPtr rect
-        errorCode <- renderFillRect renderer rectPtr
-        sdlError errorCode $ return () )
+        renderFillRect renderer rectPtr >>= sdlError)
 
 drawLine :: Renderer -> RGB -> Integer -> Integer -> Integer -> Integer -> IO()
 drawLine renderer color x1 y1 x2 y2 = do
     let RGB r g b = color
-    setRenderDrawColor renderer r g b 255
-    errorCode <- renderDrawLine renderer (fromIntegral x1) (fromIntegral y1) (fromIntegral x2) (fromIntegral y2)
-    sdlError errorCode $ return ()
+    setRenderDrawColor renderer r g b 255 >>= sdlError
+    renderDrawLine renderer (fromIntegral x1) (fromIntegral y1) (fromIntegral x2) (fromIntegral y2) >>= sdlError
 
-sdlError :: CInt -> IO a -> IO a
-sdlError 0 success = success
-sdlError _ success = throw . SDLException <$> concat <$> sequence [pure "Error in SDL call: ", peekCString =<< getError, pure "\n"]
+sdlError :: CInt -> IO ()
+sdlError 0 = return ()
+sdlError _ = throw . SDLException <$> concat <$> sequence [pure "Error in SDL call: ", peekCString =<< getError, pure "\n"]

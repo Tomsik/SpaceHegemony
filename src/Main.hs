@@ -1,8 +1,6 @@
 module Main where
 
 import Graphics.UI.SDL as SDL
-import Foreign.ForeignPtr
-import Foreign.Ptr
 import Foreign.Storable
 import Foreign.C.String
 import Foreign.Marshal.Alloc
@@ -33,12 +31,12 @@ getEvent =
             return $ Just event
 
 loopStep :: GameState -> Maybe Event -> IO Bool
-loopStep state Nothing =
+loopStep _ Nothing =
     do
         SDL.delay 10
         return True
 
-loopStep state (Just event) =
+loopStep _ (Just event) =
     case event of
         (KeyboardEvent _ _ _ _ _ (Keysym scancode _ _)) | scancode == scancodeQ ->
             return False
@@ -47,9 +45,8 @@ loopStep state (Just event) =
 
 clearScreen :: Renderer -> IO ()
 clearScreen renderer = do
-    setRenderDrawColor renderer 0 0 0 255
-    errorCode <- renderClear renderer
-    sdlError errorCode $ return ()
+    setRenderDrawColor renderer 0 0 0 255 >>= sdlError
+    renderClear renderer >>=  sdlError
 
 main :: IO ()
 main = do
@@ -60,9 +57,9 @@ main = do
     putStrLn . show . size $ fst starmap @< (StarPositionY 2) -- find systems with y < 2
     putStrLn . show . size $ fst starmap @< (StarPositionY 2) @= (StarPositionX 0) -- find systems with y < 2 and x = 0
 
-    i <- SDL.init initFlagEverything
+    SDL.init initFlagEverything >>= sdlError
     windowTitle <- newCAString "Space Hegemony"
     window <- createWindow windowTitle 0 0 800 600 0
     renderer <- createRenderer window (-1) 0
-    sdlError i $ eventLoop window renderer (players, starmap) loopStep
+    eventLoop window renderer (players, starmap) loopStep
     quit
