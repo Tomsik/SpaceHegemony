@@ -1,11 +1,13 @@
 module StarSystem where
 
+import Control.Applicative
+
 import Data.Maybe
 import Data.Unique
 import Data.IxSet
 import Data.Typeable
 
-import Graphics.UI.SDL(Renderer, Rect(..))
+import Graphics.UI.SDL(Renderer)
 
 import Player
 import EasierSdl
@@ -34,11 +36,11 @@ instance Indexable StarSystem where
 data Building = GoldMine | Farm | Laboratory deriving (Eq, Ord)
 
 makeSystem :: (Integer, Integer) -> IO StarSystem -- makeUnique returns IO Unique, hence IO
-makeSystem (x, y) = do
-    id <- newUnique
-    return $ StarSystem (StarSystemId id) (StarPosition x y) Nothing Nothing
+makeSystem (x, y) = StarSystem <$> (StarSystemId <$> newUnique) <*> (pure $ StarPosition x y) <*> pure Nothing <*> pure Nothing
 
+screenSize :: Integer
 screenSize = 50
+screenOffset :: Integer
 screenOffset = 10
 
 buildingColor :: Building -> RGB
@@ -72,19 +74,23 @@ own :: Player -> StarSystem -> StarSystem
 own player system = system { owner = Just . playerId $ player }
 
 build :: Building -> StarSystem -> StarSystem
-build building system = system { building = Just building }
+build b system = system { building = Just b }
 
 homeworld :: Player -> StarSystem -> StarSystem
 homeworld p = own p . build GoldMine
 
+screenPosition :: StarPosition -> (Integer, Integer)
 screenPosition (StarPosition x y) = (pos x, pos y)
     where pos a = screenOffset + a * (screenOffset + screenSize)
 
+screenPositionCentre :: StarPosition -> (Integer, Integer)
 screenPositionCentre starPosition = (x + screenSize `div` 2, y + screenSize `div` 2)
     where (x, y) = screenPosition starPosition
 
+buildingScreenSize :: Integer
 buildingScreenSize = 20
 
+buildingScreenPosition :: StarPosition -> (Integer, Integer)
 buildingScreenPosition starPosition = (sx + offset, sy + offset)
     where
         (sx, sy) = screenPosition starPosition
