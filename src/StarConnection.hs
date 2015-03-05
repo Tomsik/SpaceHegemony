@@ -1,6 +1,6 @@
 module StarConnection where
 
-import Data.Unique
+import Data.Unique()
 import Data.IxSet
 import Data.Typeable
 
@@ -26,7 +26,7 @@ makeConnection s s' = StarConnection (systemId s) (systemId s')
 connectedSystems :: StarSystems -> StarConnection -> (StarSystem, StarSystem)
 connectedSystems systems connection = (findSystem from, findSystem to)
     where
-        findSystem id = systemById systems . id $ connection
+        findSystem idFun = systemById systems . idFun $ connection
 
 displayConnection :: Renderer -> StarSystems -> StarConnection -> IO ()
 displayConnection renderer systems connection = drawLine renderer (RGB 0 0 255) sx1 sy1 sx2 sy2
