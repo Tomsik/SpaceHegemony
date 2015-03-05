@@ -14,10 +14,17 @@ type Players = IxSet Player
 
 newtype PlayerId = PlayerId Unique deriving (Typeable, Eq, Ord)
 
+data Resources = Resources {
+    gold :: Integer,
+    food :: Integer,
+    tech :: Integer
+} deriving (Eq)
+
 data Player = Player {
     playerId :: PlayerId,
     number :: Integer,
-    color :: RGB
+    color :: RGB,
+    resources :: Resources
 } deriving (Typeable, Eq)
 
 instance Ord Player where
@@ -33,7 +40,7 @@ playerById :: Players -> PlayerId -> Player
 playerById players = fromJust . getOne . (players @=)
 
 makePlayer :: Integer -> RGB -> IO Player
-makePlayer n c = Player <$> (PlayerId <$> newUnique) <*> pure n <*> pure c
+makePlayer n c = Player <$> (PlayerId <$> newUnique) <*> pure n <*> pure c <*> (pure $ Resources 0 0 0)
 
 makePlayers :: IO Players
 makePlayers = fromList <$> sequence [makePlayer 1 (RGB 0 255 0), makePlayer 2 (RGB 255 0 0)]
