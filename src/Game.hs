@@ -1,6 +1,7 @@
 module Game where
 
-import Data.Maybe()
+import Data.Monoid
+import Data.Maybe
 import Data.Unique()
 import Data.IxSet
 import Data.Typeable()
@@ -30,3 +31,7 @@ display :: Renderer -> GameState -> IO ()
 display renderer (players, (systems, connections)) = do
     mapM_ (displaySystem renderer players) . toList $ systems
     mapM_ (displayConnection renderer systems) . toList $ connections
+
+gatherResources :: StarSystems -> Player -> Resources
+gatherResources systems player = mconcat . map (produce . fromJust . building) $ playerSystems
+    where playerSystems = toList $ systems @= (Just . playerId $ player) @= (Nothing :: Maybe Building)

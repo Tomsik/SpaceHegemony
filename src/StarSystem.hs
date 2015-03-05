@@ -31,9 +31,10 @@ instance Indexable StarSystem where
         ixFun (\starsystem -> [ systemId starsystem ]),
         ixFun (\starsystem -> [ position starsystem ]),
         ixFun (\starsystem -> [ StarPositionX . posx . position $ starsystem ]),
-        ixFun (\starsystem -> [ StarPositionY . posy . position $ starsystem ]) ]
+        ixFun (\starsystem -> [ StarPositionY . posy . position $ starsystem ]),
+        ixFun (return . building) ]
 
-data Building = GoldMine | Farm | Laboratory deriving (Eq, Ord)
+data Building = GoldMine | Farm | Laboratory deriving (Eq, Ord, Typeable)
 
 makeSystem :: (Integer, Integer) -> IO StarSystem -- makeUnique returns IO Unique, hence IO
 makeSystem (x, y) = StarSystem <$> (StarSystemId <$> newUnique) <*> (pure $ StarPosition x y) <*> pure Nothing <*> pure Nothing
@@ -47,6 +48,11 @@ buildingColor :: Building -> RGB
 buildingColor GoldMine = RGB 255 255 0
 buildingColor Laboratory = RGB 21 237 224
 buildingColor Farm = RGB 82 231 21
+
+produce :: Building -> Resources
+produce GoldMine = Resources 1 0 0
+produce Farm = Resources 0 1 0
+produce Laboratory = Resources 0 0 1
 
 displayBuilding :: Renderer -> Building -> StarPosition -> IO ()
 displayBuilding renderer b starPosition = fillRect renderer (buildingColor b) buildingRect

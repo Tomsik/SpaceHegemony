@@ -7,6 +7,7 @@ import Data.Unique
 import Data.Typeable
 import Data.Maybe
 import Data.Function
+import Data.Monoid
 
 import EasierSdl
 
@@ -19,6 +20,10 @@ data Resources = Resources {
     food :: Integer,
     tech :: Integer
 } deriving (Eq)
+
+instance Monoid Resources where
+    mempty = Resources 0 0 0
+    mappend (Resources g f t) (Resources g' f' t') = Resources (g+g') (f+f') (t+t')
 
 data Player = Player {
     playerId :: PlayerId,
@@ -40,7 +45,7 @@ playerById :: Players -> PlayerId -> Player
 playerById players = fromJust . getOne . (players @=)
 
 makePlayer :: Integer -> RGB -> IO Player
-makePlayer n c = Player <$> (PlayerId <$> newUnique) <*> pure n <*> pure c <*> (pure $ Resources 0 0 0)
+makePlayer n c = Player <$> (PlayerId <$> newUnique) <*> pure n <*> pure c <*> pure mempty
 
 makePlayers :: IO Players
 makePlayers = fromList <$> sequence [makePlayer 1 (RGB 0 255 0), makePlayer 2 (RGB 255 0 0)]
