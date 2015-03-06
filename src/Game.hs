@@ -32,8 +32,8 @@ makeStarmap ps = do
     let connections = [makeConnection s1' s2' | s1' <- systems, s2' <- systems, s1 /= s2]
     return (fromList systems, fromList connections)
 
-display :: Renderer -> GameState -> IO ()
-display renderer (GameState ps (systems, connections) _) = do
+displayGame :: Renderer -> GameState -> IO ()
+displayGame renderer (GameState ps (systems, connections) _) = do
     mapM_ (displaySystem renderer ps) . toList $ systems
     mapM_ (displayConnection renderer $ systems) . toList $ connections
 
@@ -51,5 +51,6 @@ nextPlayer' ps = playerId . nextPlayer ps . findOne ps
 nextTurn :: GameState -> GameState
 nextTurn (GameState ps sm cp) = GameState ps sm . nextPlayer' ps $ cp
 
-gameStep :: Key -> GameState -> GameState
-gameStep Space state = state
+stepGame :: Key -> GameState -> GameState
+stepGame Space = nextTurn
+stepGame _ = id

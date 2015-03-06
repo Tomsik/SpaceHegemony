@@ -12,14 +12,16 @@ import EasierSdl
 import EasierIxSet
 import StarSystem
 
-eventLoop :: Window -> Renderer -> GameState -> (GameState -> Maybe Event -> IO Bool) -> IO ()
-eventLoop window renderer state f = do
+eventLoop :: Window -> Renderer -> a -> (Key -> a -> a) -> (Renderer -> a -> IO ())-> IO ()
+eventLoop window renderer state step display = do
     maybeEvent <- getEvent
     clearScreen renderer
     display renderer state
-    continue <- f state maybeEvent
+    continue <- loopStep step state maybeEvent
     renderPresent renderer
-    if continue then eventLoop window renderer state f else return ()
+    case continue of
+        Just newState -> eventLoop window renderer newState step display
+        Nothing -> return ()
 
 getEvent :: IO (Maybe Event)
 getEvent =
@@ -31,18 +33,21 @@ getEvent =
             event <- peek eventPtr
             return $ Just event
 
-loopStep :: GameState -> Maybe Event -> IO Bool
-loopStep _ Nothing =
+loopStep :: (Key -> a -> a) -> a -> Maybe Event -> IO (Maybe a)
+loopStep _ state Nothing =
     do
         SDL.delay 10
-        return True
+        return . Just $ state
 
-loopStep _ (Just event) =
-    case event of
-        (KeyboardEvent _ _ _ _ _ (Keysym scancode _ _)) | scancode == scancodeQ ->
-            return False
+loopStep f state (Just event) =
+    return $ case event of
+        (KeyboardEvent _ _ _ _ _ (Keysym scancode _ _)) ->
+            case fromScancode scancode of
+                Just Q -> Nothing
+                Just key -> Just . f key $ state
+                Nothing -> Just state
         _ ->
-            return True
+            Just $ state
 
 clearScreen :: Renderer -> IO ()
 clearScreen renderer = do
@@ -63,5 +68,5 @@ main = do
     windowTitle <- newCAString "Space Hegemony"
     window <- createWindow windowTitle 0 0 800 600 0
     renderer <- createRenderer window (-1) 0
-    eventLoop window renderer (GameState ps sm firstPlayer) loopStep
+    eventLoop window renderer (GameState ps sm firstPlayer) stepGame displayGame
     quit

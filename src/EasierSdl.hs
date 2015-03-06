@@ -12,7 +12,12 @@ import Control.Applicative
 
 import Graphics.UI.SDL as SDL
 
-data Key = Space
+data Key = Space | Q
+
+fromScancode :: Word32 -> Maybe Key
+fromScancode sc | sc == scancodeQ = Just Q
+fromScancode sc | sc == scancodeSpace = Just Space
+fromScancode _ = Nothing
 
 data RGB = RGB Word8 Word8 Word8 deriving Eq
 
