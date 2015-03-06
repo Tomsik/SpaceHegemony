@@ -9,6 +9,7 @@ import Data.IxSet
 import Game
 import Player
 import EasierSdl
+import EasierIxSet
 import StarSystem
 
 eventLoop :: Window -> Renderer -> GameState -> (GameState -> Maybe Event -> IO Bool) -> IO ()
@@ -52,7 +53,7 @@ main :: IO ()
 main = do
     ps <- makePlayers
     sm <- makeStarmap ps
-    let firstPlayer = playerId . head . toList $ ps
+    let firstPlayer = playerId . findOne ps $ (1::Integer)
 
     putStrLn . show . size $ fst sm @= (StarPosition 0 1) -- find systems with position = (0, 1)
     putStrLn . show . size $ fst sm @< (StarPositionY 2) -- find systems with y < 2

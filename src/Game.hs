@@ -11,9 +11,10 @@ import Foreign.C.Types()
 import Graphics.UI.SDL(Renderer)
 
 import Player
-import EasierSdl()
+import EasierSdl
 import StarSystem
 import StarConnection
+import EasierIxSet
 
 data GameState = GameState {
     players :: Players,
@@ -39,3 +40,16 @@ display renderer (GameState ps (systems, connections) _) = do
 gatherResources :: StarSystems -> Player -> Resources
 gatherResources systems player = mconcat . map (produce . fromJust . building) $ playerSystems
     where playerSystems = toList $ systems @= (Just . playerId $ player) @= (Nothing :: Maybe Building)
+
+nextPlayer :: Players -> Player -> Player
+nextPlayer ps = findOne ps . nextNum . number
+    where nextNum i = (i + 1) `mod` (fromIntegral . size $ ps)
+
+nextPlayer' :: Players -> PlayerId -> PlayerId
+nextPlayer' ps = playerId . nextPlayer ps . findOne ps
+
+nextTurn :: GameState -> GameState
+nextTurn (GameState ps sm cp) = GameState ps sm . nextPlayer' ps $ cp
+
+gameStep :: Key -> GameState -> GameState
+gameStep Space state = state

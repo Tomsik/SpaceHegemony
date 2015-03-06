@@ -12,6 +12,8 @@ import Control.Applicative
 
 import Graphics.UI.SDL as SDL
 
+data Key = Space
+
 data RGB = RGB Word8 Word8 Word8 deriving Eq
 
 data SDLException = SDLException String
