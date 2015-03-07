@@ -46,7 +46,7 @@ gatherResources :: StarSystems -> Player -> Player
 gatherResources systems player = player { resources = resources player <> produceResources systems (playerId player)}
 
 gatherResources' :: GameState -> GameState
-gatherResources' (GameState ps sm cp) = GameState (updateIx cp (gatherResources (fst sm) . findOne ps $ cp) ps) sm cp
+gatherResources' gs@(GameState ps sm cp) = gs { players = updateIx cp (gatherResources (fst sm) . findOne ps $ cp) ps }
 
 nextPlayer :: Players -> Player -> Player
 nextPlayer ps = findOne ps . nextNum . number
@@ -56,7 +56,7 @@ nextPlayer' :: Players -> PlayerId -> PlayerId
 nextPlayer' ps = playerId . nextPlayer ps . findOne ps
 
 nextTurn :: GameState -> GameState
-nextTurn (GameState ps sm cp) = GameState ps sm . nextPlayer' ps $ cp
+nextTurn gs@(GameState ps _ cp) = gs { currentPlayer = nextPlayer' ps cp }
 
 stepGame :: Key -> GameState -> GameState
 stepGame Space = gatherResources' . nextTurn
