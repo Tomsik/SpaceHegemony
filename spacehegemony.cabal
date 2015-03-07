@@ -50,13 +50,14 @@ executable spacehegemony
   main-is:             Main.hs
   
   -- Modules included in this executable, other than Main.
+
   -- other-modules:       
   
   -- LANGUAGE extensions used by modules in this package.
   extensions: DeriveDataTypeable
   
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.7 && <4.8, sdl2 == 1.0.2, ixset
+  build-depends:       base >=4.7 && <4.8, sdl2 == 1.0.2, ixset, sdl2-ttf
  
   -- Directories containing source files.
   hs-source-dirs:      src

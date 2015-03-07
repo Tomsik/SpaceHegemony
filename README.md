@@ -4,6 +4,8 @@ cabal sandbox init
 
 cabal install
 
+cabal install src/sdl2-tff/SDL2-ttf.cabal
+
 cabal build
 
-./dist/build/spacehegemony/spacehegemony
+cabal run
