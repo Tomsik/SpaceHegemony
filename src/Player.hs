@@ -22,7 +22,7 @@ data Resources = Resources {
     gold :: Integer,
     food :: Integer,
     tech :: Integer
-} deriving (Eq)
+} deriving (Eq, Show)
 
 instance Monoid Resources where
     mempty = Resources 0 0 0
@@ -56,6 +56,9 @@ makePlayers :: IO Players
 makePlayers = fromList <$> sequence [makePlayer 1 (RGB 0 255 0), makePlayer 2 (RGB 255 0 0)]
 
 displayCurrentPlayer :: Renderer -> Players -> PlayerId -> IO ()
-displayCurrentPlayer renderer ps pid = fillRect renderer playerColor $ makeRect 200 200 10 10
+displayCurrentPlayer renderer ps pid = do
+    fillRect renderer playerColor $ makeRect 200 200 10 10
+    putStrLn . show . resources $ player
     where
-        playerColor = color . findOne ps $ pid
+        player = findOne ps pid
+        playerColor = color player

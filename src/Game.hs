@@ -38,9 +38,15 @@ displayGame renderer (GameState ps (systems, connections) cp) = do
     mapM_ (displayConnection renderer $ systems) . toList $ connections
     displayCurrentPlayer renderer ps cp
 
-gatherResources :: StarSystems -> Player -> Resources
-gatherResources systems player = mconcat . map (produce . fromJust . building) $ playerSystems
-    where playerSystems = toList $ systems @= (Just . playerId $ player) @= (Nothing :: Maybe Building)
+produceResources :: StarSystems -> PlayerId -> Resources
+produceResources systems pid = mconcat . mapMaybe (fmap produce . building) $ playerSystems
+    where playerSystems = toList $ systems @= (Just pid)
+
+gatherResources :: StarSystems -> Player -> Player
+gatherResources systems player = player { resources = resources player <> produceResources systems (playerId player)}
+
+gatherResources' :: GameState -> GameState
+gatherResources' (GameState ps sm cp) = GameState (updateIx cp (gatherResources (fst sm) . findOne ps $ cp) ps) sm cp
 
 nextPlayer :: Players -> Player -> Player
 nextPlayer ps = findOne ps . nextNum . number
@@ -53,5 +59,5 @@ nextTurn :: GameState -> GameState
 nextTurn (GameState ps sm cp) = GameState ps sm . nextPlayer' ps $ cp
 
 stepGame :: Key -> GameState -> GameState
-stepGame Space = nextTurn
+stepGame Space = gatherResources' . nextTurn
 stepGame _ = id

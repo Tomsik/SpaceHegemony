@@ -32,6 +32,7 @@ instance Indexable StarSystem where
         ixFun (\starsystem -> [ position starsystem ]),
         ixFun (\starsystem -> [ StarPositionX . posx . position $ starsystem ]),
         ixFun (\starsystem -> [ StarPositionY . posy . position $ starsystem ]),
+        ixFun (return . owner),
         ixFun (return . building) ]
 
 data Building = GoldMine | Farm | Laboratory deriving (Eq, Ord, Typeable)
