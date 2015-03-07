@@ -33,9 +33,10 @@ makeStarmap ps = do
     return (fromList systems, fromList connections)
 
 displayGame :: Renderer -> GameState -> IO ()
-displayGame renderer (GameState ps (systems, connections) _) = do
+displayGame renderer (GameState ps (systems, connections) cp) = do
     mapM_ (displaySystem renderer ps) . toList $ systems
     mapM_ (displayConnection renderer $ systems) . toList $ connections
+    displayCurrentPlayer renderer ps cp
 
 gatherResources :: StarSystems -> Player -> Resources
 gatherResources systems player = mconcat . map (produce . fromJust . building) $ playerSystems
@@ -43,7 +44,7 @@ gatherResources systems player = mconcat . map (produce . fromJust . building) $
 
 nextPlayer :: Players -> Player -> Player
 nextPlayer ps = findOne ps . nextNum . number
-    where nextNum i = (i + 1) `mod` (fromIntegral . size $ ps)
+    where nextNum i = 1 + i `mod` (fromIntegral . size $ ps)
 
 nextPlayer' :: Players -> PlayerId -> PlayerId
 nextPlayer' ps = playerId . nextPlayer ps . findOne ps

@@ -9,7 +9,10 @@ import Data.Maybe
 import Data.Function
 import Data.Monoid
 
+import Graphics.UI.SDL(Renderer)
+
 import EasierSdl
+import EasierIxSet
 
 type Players = IxSet Player
 
@@ -36,7 +39,9 @@ instance Ord Player where
     (<=) = (<=) `on` number
 
 instance Indexable Player where
-    empty = ixSet [ ixFun $ return . playerId ]
+    empty = ixSet [
+        ixFun $ return . playerId,
+        ixFun $ return . number ]
 
 playerColor' :: Maybe Player -> RGB
 playerColor' = maybe (RGB 128 128 128) color
@@ -49,3 +54,8 @@ makePlayer n c = Player <$> (PlayerId <$> newUnique) <*> pure n <*> pure c <*> p
 
 makePlayers :: IO Players
 makePlayers = fromList <$> sequence [makePlayer 1 (RGB 0 255 0), makePlayer 2 (RGB 255 0 0)]
+
+displayCurrentPlayer :: Renderer -> Players -> PlayerId -> IO ()
+displayCurrentPlayer renderer ps pid = fillRect renderer playerColor $ makeRect 200 200 10 10
+    where
+        playerColor = color . findOne ps $ pid

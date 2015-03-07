@@ -41,7 +41,7 @@ loopStep _ state Nothing =
 
 loopStep f state (Just event) =
     return $ case event of
-        (KeyboardEvent _ _ _ _ _ (Keysym scancode _ _)) ->
+        (KeyboardEvent et _ _ _ _ (Keysym scancode _ _)) | et == eventTypeKeyDown ->
             case fromScancode scancode of
                 Just Q -> Nothing
                 Just key -> Just . f key $ state
