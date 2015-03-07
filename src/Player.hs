@@ -62,3 +62,10 @@ displayCurrentPlayer renderer ps pid = do
     where
         player = findOne ps pid
         playerColor = color player
+
+nextPlayer :: Players -> Player -> Player
+nextPlayer ps = findOne ps . nextNum . number
+    where nextNum i = 1 + i `mod` (fromIntegral . size $ ps)
+
+nextPlayer' :: Players -> PlayerId -> PlayerId
+nextPlayer' ps = playerId . nextPlayer ps . findOne ps

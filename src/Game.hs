@@ -51,13 +51,6 @@ gatherResources systems player = player { resources = resources player <> produc
 gatherResources' :: GameState -> GameState
 gatherResources' gs@(GameState ps (systems, _) cp) = gs { players = modifyIx cp (gatherResources systems) ps }
 
-nextPlayer :: Players -> Player -> Player
-nextPlayer ps = findOne ps . nextNum . number
-    where nextNum i = 1 + i `mod` (fromIntegral . size $ ps)
-
-nextPlayer' :: Players -> PlayerId -> PlayerId
-nextPlayer' ps = playerId . nextPlayer ps . findOne ps
-
 nextTurn :: GameState -> GameState
 nextTurn gs@(GameState ps _ cp) = gs { currentPlayerId = nextPlayer' ps cp }
 
