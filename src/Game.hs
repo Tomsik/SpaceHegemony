@@ -19,8 +19,11 @@ import EasierIxSet
 data GameState = GameState {
     players :: Players,
     starmap :: Starmap,
-    currentPlayer :: PlayerId
+    currentPlayerId :: PlayerId
 }
+
+currentPlayer :: GameState -> Player
+currentPlayer (GameState ps _ cpId) = findOne ps cpId
 
 type Starmap = (StarSystems, StarConnections)
 
@@ -46,7 +49,7 @@ gatherResources :: StarSystems -> Player -> Player
 gatherResources systems player = player { resources = resources player <> produceResources systems (playerId player)}
 
 gatherResources' :: GameState -> GameState
-gatherResources' gs@(GameState ps sm cp) = gs { players = updateIx cp (gatherResources (fst sm) . findOne ps $ cp) ps }
+gatherResources' gs@(GameState ps (systems, _) cp) = gs { players = modifyIx cp (gatherResources systems) ps }
 
 nextPlayer :: Players -> Player -> Player
 nextPlayer ps = findOne ps . nextNum . number
@@ -56,7 +59,7 @@ nextPlayer' :: Players -> PlayerId -> PlayerId
 nextPlayer' ps = playerId . nextPlayer ps . findOne ps
 
 nextTurn :: GameState -> GameState
-nextTurn gs@(GameState ps _ cp) = gs { currentPlayer = nextPlayer' ps cp }
+nextTurn gs@(GameState ps _ cp) = gs { currentPlayerId = nextPlayer' ps cp }
 
 stepGame :: Key -> GameState -> GameState
 stepGame Space = gatherResources' . nextTurn
