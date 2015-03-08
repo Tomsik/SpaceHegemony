@@ -1,6 +1,7 @@
 module Main where
 
 import Graphics.UI.SDL as SDL
+import qualified Graphics.UI.SDL.TTF as TTF
 import Foreign.Storable
 import Foreign.C.String
 import Foreign.Marshal.Alloc
@@ -65,8 +66,9 @@ main = do
     putStrLn . show . size $ fst sm @< (StarPositionY 2) @= (StarPositionX 0) -- find systems with y < 2 and x = 0
 
     SDL.init initFlagEverything >>= sdlError
-    windowTitle <- newCAString "Space Hegemony"
-    window <- createWindow windowTitle 0 0 800 600 0
-    renderer <- createRenderer window (-1) 0
-    eventLoop window renderer (GameState ps sm firstPlayer) stepGame displayGame
+    TTF.withInit $ do
+        windowTitle <- newCAString "Space Hegemony"
+        window <- createWindow windowTitle 0 0 800 600 0
+        renderer <- createRenderer window (-1) 0
+        eventLoop window renderer (GameState ps sm firstPlayer) stepGame displayGame
     quit
