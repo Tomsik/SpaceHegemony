@@ -8,7 +8,6 @@ import Data.Typeable()
 
 import Foreign.C.Types()
 
-import Display
 import Player
 import Resources
 import EasierSdl
@@ -34,12 +33,6 @@ makeStarmap ps = do
     let systems = [homeworld p1 s1, homeworld p2 s2, s3]
     let connections = [makeConnection s1' s2' | s1' <- systems, s2' <- systems, s1 /= s2]
     return (fromList systems, fromList connections)
-
-displayGame :: DisplayData -> GameState -> IO ()
-displayGame displayData (GameState ps (systems, connections) cp) = do
-    mapM_ (displaySystem (renderer displayData) ps) . toList $ systems
-    mapM_ (displayConnection (renderer displayData) systems) . toList $ connections
-    displayCurrentPlayer displayData ps cp
 
 produceResources :: StarSystems -> PlayerId -> Resources
 produceResources systems pid = mconcat . mapMaybe (fmap produce . building) $ playerSystems

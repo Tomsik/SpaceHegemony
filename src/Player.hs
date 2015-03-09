@@ -12,7 +12,6 @@ import Data.Function
 import EasierSdl
 import EasierIxSet
 import Resources
-import Display
 
 type Players = IxSet Player
 
@@ -44,14 +43,6 @@ makePlayer n c = Player <$> (PlayerId <$> newUnique) <*> pure n <*> pure c <*> p
 
 makePlayers :: IO Players
 makePlayers = fromList <$> sequence [makePlayer 1 (RGB 0 255 0), makePlayer 2 (RGB 255 0 0)]
-
-displayCurrentPlayer :: DisplayData -> Players -> PlayerId -> IO ()
-displayCurrentPlayer displayData ps pid = do
-    fillRect (renderer displayData) playerColor $ makeRect 200 200 150 50
-    displayResources displayData . resources $ player
-    where
-        player = findOne ps pid
-        playerColor = color player
 
 nextPlayer :: Players -> Player -> Player
 nextPlayer ps = findOne ps . nextNum . number
