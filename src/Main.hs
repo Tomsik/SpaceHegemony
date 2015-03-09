@@ -1,7 +1,8 @@
 module Main where
 
 import Graphics.UI.SDL as SDL
-import qualified Graphics.UI.SDL.TTF as TTF
+import Graphics.UI.SDL.TTF.FFI(TTFFont)
+import Graphics.UI.SDL.TTF as TTF(withInit, openFont, closeFont)
 import Foreign.Storable
 import Foreign.C.String
 import Foreign.Marshal.Alloc
@@ -13,15 +14,15 @@ import EasierSdl
 import EasierIxSet
 import StarSystem
 
-eventLoop :: Window -> Renderer -> a -> (Key -> a -> a) -> (Renderer -> a -> IO ())-> IO ()
-eventLoop window renderer state step display = do
+eventLoop :: Window -> (Renderer, TTFFont) -> a -> (Key -> a -> a) -> ((Renderer, TTFFont) -> a -> IO ())-> IO ()
+eventLoop window (renderer, font) state step display = do
     maybeEvent <- getEvent
     clearScreen renderer
-    display renderer state
+    display (renderer, font) state
     continue <- loopStep step state maybeEvent
     renderPresent renderer
     case continue of
-        Just newState -> eventLoop window renderer newState step display
+        Just newState -> eventLoop window (renderer, font) newState step display
         Nothing -> return ()
 
 getEvent :: IO (Maybe Event)
@@ -67,8 +68,10 @@ main = do
 
     SDL.init initFlagEverything >>= sdlError
     TTF.withInit $ do
+        font <- openFont "resources/DejaVuSans.ttf" 15
         windowTitle <- newCAString "Space Hegemony"
         window <- createWindow windowTitle 0 0 800 600 0
         renderer <- createRenderer window (-1) 0
-        eventLoop window renderer (GameState ps sm firstPlayer) stepGame displayGame
+        eventLoop window (renderer, font) (GameState ps sm firstPlayer) stepGame displayGame
+        closeFont font
     quit

@@ -4,6 +4,7 @@ import Foreign.Storable
 import Foreign.Marshal.Alloc
 import Foreign.C.String
 import Foreign.C.Types
+import Foreign.Ptr
 
 import Data.Word
 import Data.Typeable
@@ -11,6 +12,8 @@ import Control.Exception
 import Control.Applicative
 
 import Graphics.UI.SDL as SDL
+import Graphics.UI.SDL.TTF.FFI(TTFFont)
+import Graphics.UI.SDL.TTF as TTF(renderTextSolid)
 
 data Key = Space | Q
 
@@ -28,6 +31,14 @@ instance Exception SDLException
 
 makeRect :: Integer -> Integer -> Integer -> Integer -> Rect
 makeRect x y w h = Rect (fromIntegral x) (fromIntegral y) (fromIntegral w) (fromIntegral h)
+
+renderText :: Renderer -> TTFFont -> RGB -> Rect -> String -> IO()
+renderText renderer font color rect text = do
+    let RGB r g b = color
+    texture <- renderTextSolid font text (Color r g b 255) >>= createTextureFromSurface renderer
+    alloca (\rectPtr -> do
+        poke rectPtr rect
+        renderCopy renderer texture nullPtr rectPtr >>= sdlError )
 
 fillRect :: Renderer -> RGB -> Rect -> IO()
 fillRect renderer color rect = do

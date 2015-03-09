@@ -10,6 +10,7 @@ import Data.Function
 import Data.Monoid
 
 import Graphics.UI.SDL(Renderer)
+import Graphics.UI.SDL.TTF.FFI(TTFFont)
 
 import EasierSdl
 import EasierIxSet
@@ -55,10 +56,16 @@ makePlayer n c = Player <$> (PlayerId <$> newUnique) <*> pure n <*> pure c <*> p
 makePlayers :: IO Players
 makePlayers = fromList <$> sequence [makePlayer 1 (RGB 0 255 0), makePlayer 2 (RGB 255 0 0)]
 
-displayCurrentPlayer :: Renderer -> Players -> PlayerId -> IO ()
-displayCurrentPlayer renderer ps pid = do
-    fillRect renderer playerColor $ makeRect 200 200 10 10
-    putStrLn . show . resources $ player
+displayResources :: (Renderer, TTFFont) -> Resources -> IO()
+displayResources (renderer, font) (Resources g f t) = do
+    renderText renderer font (RGB 255 255 0) (makeRect 200 200 50 50) . show $ g
+    renderText renderer font (RGB 21 237 224) (makeRect 250 200 50 50) . show $ f
+    renderText renderer font (RGB 82 231 21) (makeRect 300 200 50 50) . show $ t
+
+displayCurrentPlayer :: (Renderer, TTFFont) -> Players -> PlayerId -> IO ()
+displayCurrentPlayer (renderer, font) ps pid = do
+    fillRect renderer playerColor $ makeRect 200 200 150 50
+    displayResources (renderer, font) . resources $ player
     where
         player = findOne ps pid
         playerColor = color player

@@ -9,6 +9,7 @@ import Data.Typeable()
 import Foreign.C.Types()
 
 import Graphics.UI.SDL(Renderer)
+import Graphics.UI.SDL.TTF.FFI(TTFFont)
 
 import Player
 import EasierSdl
@@ -35,11 +36,11 @@ makeStarmap ps = do
     let connections = [makeConnection s1' s2' | s1' <- systems, s2' <- systems, s1 /= s2]
     return (fromList systems, fromList connections)
 
-displayGame :: Renderer -> GameState -> IO ()
-displayGame renderer (GameState ps (systems, connections) cp) = do
+displayGame :: (Renderer, TTFFont) -> GameState -> IO ()
+displayGame (renderer, font) (GameState ps (systems, connections) cp) = do
     mapM_ (displaySystem renderer ps) . toList $ systems
     mapM_ (displayConnection renderer $ systems) . toList $ connections
-    displayCurrentPlayer renderer ps cp
+    displayCurrentPlayer (renderer, font) ps cp
 
 produceResources :: StarSystems -> PlayerId -> Resources
 produceResources systems pid = mconcat . mapMaybe (fmap produce . building) $ playerSystems
