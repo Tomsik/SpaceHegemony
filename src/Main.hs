@@ -1,7 +1,6 @@
 module Main where
 
 import Graphics.UI.SDL as SDL
-import Graphics.UI.SDL.TTF.FFI(TTFFont)
 import Graphics.UI.SDL.TTF as TTF(withInit, openFont, closeFont)
 import Foreign.Storable
 import Foreign.C.String
@@ -13,16 +12,17 @@ import Player
 import EasierSdl
 import EasierIxSet
 import StarSystem
+import Display
 
-eventLoop :: Window -> (Renderer, TTFFont) -> a -> (Key -> a -> a) -> ((Renderer, TTFFont) -> a -> IO ())-> IO ()
-eventLoop window (renderer, font) state step display = do
+eventLoop :: Window -> DisplayData -> a -> (Key -> a -> a) -> (DisplayData -> a -> IO ())-> IO ()
+eventLoop window displayData state step display = do
     maybeEvent <- getEvent
-    clearScreen renderer
-    display (renderer, font) state
+    clearScreen . renderer $ displayData
+    display displayData state
     continue <- loopStep step state maybeEvent
-    renderPresent renderer
+    renderPresent . renderer $ displayData
     case continue of
-        Just newState -> eventLoop window (renderer, font) newState step display
+        Just newState -> eventLoop window displayData newState step display
         Nothing -> return ()
 
 getEvent :: IO (Maybe Event)
@@ -52,9 +52,9 @@ loopStep f state (Just event) =
             Just $ state
 
 clearScreen :: Renderer -> IO ()
-clearScreen renderer = do
-    setRenderDrawColor renderer 0 0 0 255 >>= sdlError
-    renderClear renderer >>=  sdlError
+clearScreen r = do
+    setRenderDrawColor r 0 0 0 255 >>= sdlError
+    renderClear r >>=  sdlError
 
 main :: IO ()
 main = do
@@ -68,10 +68,10 @@ main = do
 
     SDL.init initFlagEverything >>= sdlError
     TTF.withInit $ do
-        font <- openFont "resources/DejaVuSans.ttf" 60
+        f <- openFont "resources/DejaVuSans.ttf" 60
         windowTitle <- newCAString "Space Hegemony"
         window <- createWindow windowTitle 0 0 800 600 0
-        renderer <- createRenderer window (-1) 0
-        eventLoop window (renderer, font) (GameState ps sm firstPlayer) stepGame displayGame
-        closeFont font
+        r <- createRenderer window (-1) 0
+        eventLoop window (DisplayData r f) (GameState ps sm firstPlayer) stepGame displayGame
+        closeFont f
     quit

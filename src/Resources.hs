@@ -2,10 +2,8 @@ module Resources where
 
 import Data.Monoid
 
-import Graphics.UI.SDL(Renderer)
-import Graphics.UI.SDL.TTF.FFI(TTFFont)
-
 import EasierSdl
+import Display
 
 data Resources = Resources {
     gold :: Integer,
@@ -26,8 +24,9 @@ foodColor = (RGB 21 237 224)
 techColor :: RGB
 techColor = (RGB 82 231 21)
 
-displayResources :: (Renderer, TTFFont) -> Resources -> IO()
-displayResources (renderer, font) (Resources g f t) = do
-    renderText renderer font goldColor (makeRect 200 200 50 50) . show $ g
-    renderText renderer font foodColor (makeRect 250 200 50 50) . show $ f
-    renderText renderer font techColor (makeRect 300 200 50 50) . show $ t
+displayResources :: DisplayData -> Resources -> IO()
+displayResources dd (Resources g f t) = do
+    render goldColor (makeRect 200 200 50 50) . show $ g
+    render foodColor (makeRect 250 200 50 50) . show $ f
+    render techColor (makeRect 300 200 50 50) . show $ t
+    where render = renderText (renderer dd) (font dd)

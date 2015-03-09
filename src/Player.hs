@@ -9,12 +9,10 @@ import Data.Typeable
 import Data.Maybe
 import Data.Function
 
-import Graphics.UI.SDL(Renderer)
-import Graphics.UI.SDL.TTF.FFI(TTFFont)
-
 import EasierSdl
 import EasierIxSet
 import Resources
+import Display
 
 type Players = IxSet Player
 
@@ -47,10 +45,10 @@ makePlayer n c = Player <$> (PlayerId <$> newUnique) <*> pure n <*> pure c <*> p
 makePlayers :: IO Players
 makePlayers = fromList <$> sequence [makePlayer 1 (RGB 0 255 0), makePlayer 2 (RGB 255 0 0)]
 
-displayCurrentPlayer :: (Renderer, TTFFont) -> Players -> PlayerId -> IO ()
-displayCurrentPlayer (renderer, font) ps pid = do
-    fillRect renderer playerColor $ makeRect 200 200 150 50
-    displayResources (renderer, font) . resources $ player
+displayCurrentPlayer :: DisplayData -> Players -> PlayerId -> IO ()
+displayCurrentPlayer displayData ps pid = do
+    fillRect (renderer displayData) playerColor $ makeRect 200 200 150 50
+    displayResources displayData . resources $ player
     where
         player = findOne ps pid
         playerColor = color player
