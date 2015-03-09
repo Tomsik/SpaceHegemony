@@ -47,9 +47,9 @@ screenOffset :: Integer
 screenOffset = 10
 
 buildingColor :: Building -> RGB
-buildingColor GoldMine = RGB 255 255 0
-buildingColor Laboratory = RGB 21 237 224
-buildingColor Farm = RGB 82 231 21
+buildingColor GoldMine = goldColor
+buildingColor Laboratory = techColor
+buildingColor Farm = foodColor
 
 produce :: Building -> Resources
 produce GoldMine = Resources 1 0 0

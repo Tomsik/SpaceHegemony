@@ -17,8 +17,17 @@ instance Monoid Resources where
     mempty = Resources 0 0 0
     mappend (Resources g f t) (Resources g' f' t') = Resources (g+g') (f+f') (t+t')
 
+goldColor :: RGB
+goldColor = (RGB 255 255 0)
+
+foodColor :: RGB
+foodColor = (RGB 21 237 224)
+
+techColor :: RGB
+techColor = (RGB 82 231 21)
+
 displayResources :: (Renderer, TTFFont) -> Resources -> IO()
 displayResources (renderer, font) (Resources g f t) = do
-    renderText renderer font (RGB 255 255 0) (makeRect 200 200 50 50) . show $ g
-    renderText renderer font (RGB 21 237 224) (makeRect 250 200 50 50) . show $ f
-    renderText renderer font (RGB 82 231 21) (makeRect 300 200 50 50) . show $ t
+    renderText renderer font goldColor (makeRect 200 200 50 50) . show $ g
+    renderText renderer font foodColor (makeRect 250 200 50 50) . show $ f
+    renderText renderer font techColor (makeRect 300 200 50 50) . show $ t
