@@ -67,16 +67,10 @@ battleFleets' f Nothing = f
 battleFleets' (Just f1) (Just f2) = battleFleets' (hitFleet f1 $ fleetPower f2) (hitFleet f2 $ fleetPower f1)
 
 fleetPower :: Fleet -> Integer
-fleetPower fleet = (scouts . ships $ fleet) * 1 + (battle . ships $ fleet) * 3
-
-fleetSize :: Fleet -> Integer
-fleetSize = numberOfShips . ships
+fleetPower fleet = (scouts . ships $ fleet) * 10 + (battle . ships $ fleet) * 30 + (colony . ships $ fleet) * 2
 
 numberOfShips :: Ships -> Integer
 numberOfShips s = scouts s + colony s + battle s
-
-testing :: (Ships -> Integer -> Ships) -> (Ships, Integer) -> (Ships, Integer)
-testing f (s, i) = (f s i, i)
 
 hitFleet :: Fleet -> Integer -> Maybe Fleet
 hitFleet fleet = hitFleet' $ Just fleet
@@ -91,13 +85,13 @@ hitFleet' (Just fleet) power = case numberOfShips s of
         (s, p) = (hitScouts' . hitColony' . hitBattle') (ships fleet, power)
 
 hitScouts' :: (Ships, Integer) -> (Ships, Integer)
-hitScouts' si = hitShips' (\s n -> s { scouts = n }) scouts 2 si
+hitScouts' si = hitShips' (\s n -> s { scouts = n }) scouts 20 si
 
 hitBattle' :: (Ships, Integer) -> (Ships, Integer)
-hitBattle' si = hitShips' (\s n -> s { battle = n }) battle 3 si
+hitBattle' si = hitShips' (\s n -> s { battle = n }) battle 30 si
 
 hitColony' :: (Ships, Integer) -> (Ships, Integer)
-hitColony' si = hitShips' (\s n -> s { colony = n }) colony 1 si
+hitColony' si = hitShips' (\s n -> s { colony = n }) colony 10 si
 
 hitShips' :: (Ships -> Integer -> Ships) -> (Ships -> Integer) -> Integer -> (Ships, Integer) -> (Ships, Integer)
 hitShips' _ _ _ (s, 0)  = (s, 0)
