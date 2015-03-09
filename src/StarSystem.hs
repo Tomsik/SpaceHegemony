@@ -10,6 +10,7 @@ import Data.Typeable
 import Graphics.UI.SDL(Renderer)
 
 import Player
+import Resources
 import EasierSdl
 
 type StarSystems = IxSet StarSystem

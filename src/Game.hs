@@ -12,6 +12,7 @@ import Graphics.UI.SDL(Renderer)
 import Graphics.UI.SDL.TTF.FFI(TTFFont)
 
 import Player
+import Resources
 import EasierSdl
 import StarSystem
 import StarConnection
