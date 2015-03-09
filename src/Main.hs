@@ -68,7 +68,7 @@ main = do
 
     SDL.init initFlagEverything >>= sdlError
     TTF.withInit $ do
-        font <- openFont "resources/DejaVuSans.ttf" 15
+        font <- openFont "resources/DejaVuSans.ttf" 60
         windowTitle <- newCAString "Space Hegemony"
         window <- createWindow windowTitle 0 0 800 600 0
         renderer <- createRenderer window (-1) 0
