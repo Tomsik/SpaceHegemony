@@ -14,15 +14,17 @@ import EasierSdl
 import StarSystem
 import StarConnection
 import EasierIxSet
+import Selectable
 
 data GameState = GameState {
     players :: Players,
     starmap :: Starmap,
-    currentPlayerId :: PlayerId
+    currentPlayerId :: PlayerId,
+    selected :: Selected
 }
 
 currentPlayer :: GameState -> Player
-currentPlayer (GameState ps _ cpId) = findOne ps cpId
+currentPlayer (GameState ps _ cpId _) = findOne ps cpId
 
 type Starmap = (StarSystems, StarConnections)
 
@@ -42,11 +44,11 @@ gatherResources :: StarSystems -> Player -> Player
 gatherResources systems player = player { resources = resources player <> produceResources systems (playerId player)}
 
 gatherResources' :: GameState -> GameState
-gatherResources' gs@(GameState ps (systems, _) cp) = gs { players = modifyIx cp (gatherResources systems) ps }
+gatherResources' gs@(GameState ps (systems, _) cp _) = gs { players = modifyIx cp (gatherResources systems) ps }
 
 nextTurn :: GameState -> GameState
-nextTurn gs@(GameState ps _ cp) = gs { currentPlayerId = nextPlayer' ps cp }
+nextTurn gs@(GameState ps _ cp _) = gs { currentPlayerId = nextPlayer' ps cp }
 
 stepGame :: Key -> GameState -> GameState
 stepGame Space = gatherResources' . nextTurn
-stepGame _ = id
+stepGame _ = Prelude.id

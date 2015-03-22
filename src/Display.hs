@@ -12,6 +12,7 @@ import Resources
 import StarSystem
 import StarConnection
 import Game
+import Selectable
 
 data DisplayData = DisplayData {
     renderer :: Renderer,
@@ -49,14 +50,13 @@ displayBuilding' :: Renderer -> Maybe Building -> StarPosition -> IO ()
 displayBuilding' _ Nothing _ = return ()
 displayBuilding' r (Just b) starPosition = displayBuilding r b starPosition
 
-displaySystem :: Renderer -> Players -> StarSystem -> IO ()
-displaySystem r ps system = do
-    fillRect r (playerColor' player) systemRect
+displaySystem :: Renderer -> Players -> Selected -> StarSystem -> IO ()
+displaySystem r ps sel system = do
+    displaySelection r sel system
+    fillRect r (playerColor' player) $ boundingBox system
     displayBuilding' r (building system) (position system)
     where
         player = fmap (playerById ps) (owner system)
-        (x, y) = screenPosition . position $ system
-        systemRect = makeRect x y screenSize screenSize
 
 displayCurrentPlayer :: DisplayData -> Players -> PlayerId -> IO ()
 displayCurrentPlayer displayData ps pid = do
@@ -74,15 +74,10 @@ displayConnection r systems connection = drawLine r (RGB 0 0 255) sx1 sy1 sx2 sy
         (sx2, sy2) = screenPositionCentre . position $ s2
 
 displayGame :: DisplayData -> GameState -> IO ()
-displayGame displayData (GameState ps (systems, connections) cp) = do
-    mapM_ (displaySystem (renderer displayData) ps) . toList $ systems
+displayGame displayData (GameState ps (systems, connections) cp sel) = do
+    mapM_ (displaySystem (renderer displayData) ps sel) . toList $ systems
     mapM_ (displayConnection (renderer displayData) systems) . toList $ connections
     displayCurrentPlayer displayData ps cp
-
-
-screenPosition :: StarPosition -> (Integer, Integer)
-screenPosition (StarPosition x y) = (pos x, pos y)
-    where pos a = screenOffset + a * (screenOffset + screenSize)
 
 screenPositionCentre :: StarPosition -> (Integer, Integer)
 screenPositionCentre starPosition = (x + screenSize `div` 2, y + screenSize `div` 2)

@@ -13,6 +13,7 @@ import EasierSdl
 import EasierIxSet
 import StarSystem
 import Display
+import Selectable
 
 eventLoop :: Window -> DisplayData -> a -> (Key -> a -> a) -> (DisplayData -> a -> IO ())-> IO ()
 eventLoop window displayData state step display = do
@@ -61,6 +62,7 @@ main = do
     ps <- makePlayers
     sm <- makeStarmap ps
     let firstPlayer = playerId . findOne ps $ (1::Integer)
+    let sel = insert  (SelectableId . Selectable.id . head . toList . fst $ sm) empty
 
     putStrLn . show . size $ fst sm @= (StarPosition 0 1) -- find systems with position = (0, 1)
     putStrLn . show . size $ fst sm @< (StarPositionY 2) -- find systems with y < 2
@@ -72,6 +74,6 @@ main = do
         windowTitle <- newCAString "Space Hegemony"
         window <- createWindow windowTitle 0 0 800 600 0
         r <- createRenderer window (-1) 0
-        eventLoop window (DisplayData r f) (GameState ps sm firstPlayer) stepGame displayGame
+        eventLoop window (DisplayData r f) (GameState ps sm firstPlayer sel) stepGame displayGame
         closeFont f
     quit

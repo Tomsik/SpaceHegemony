@@ -9,6 +9,8 @@ import Data.Typeable
 
 import Player
 import Resources
+import Selectable
+import EasierSdl
 
 type StarSystems = IxSet StarSystem
 
@@ -32,6 +34,15 @@ instance Indexable StarSystem where
         ixFun (\starsystem -> [ StarPositionY . posy . position $ starsystem ]),
         ixFun (return . owner),
         ixFun (return . building) ]
+
+instance Selectable StarSystem where
+    id s = let (StarSystemId i) = systemId s in i
+    boundingBox s = makeRect x y screenSize screenSize
+        where (x, y) = screenPosition . position $ s
+
+screenPosition :: StarPosition -> (Integer, Integer)
+screenPosition (StarPosition x y) = (pos x, pos y)
+    where pos a = screenOffset + a * (screenOffset + screenSize)
 
 data Building = GoldMine | Farm | Laboratory deriving (Eq, Ord, Typeable)
 
